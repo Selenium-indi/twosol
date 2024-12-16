@@ -1,0 +1,37 @@
+name: Selenium Test  # 워크플로우의 이름
+
+on: 
+  push:
+    branches: 
+      - main  # main 브랜치에 코드가 푸시될 때만 실행
+
+jobs:
+  test:  # job 이름
+    runs-on: ubuntu-latest  # 가상 머신 운영체제 (Ubuntu)
+
+    steps:
+      - name: Check out code  # 1️⃣ 코드를 불러오는 단계
+        uses: actions/checkout@v3  # 리포지토리의 코드를 불러옴
+
+      - name: Set up Python  # 2️⃣ 파이썬 환경 설정
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # 사용할 파이썬 버전
+
+      - name: Install dependencies  # 3️⃣ 파이썬 패키지 설치
+        run: |
+          python -m pip install --upgrade pip  # pip 최신화
+          pip install selenium  # selenium 설치
+
+      - name: Install Chrome & ChromeDriver  # 4️⃣ 크롬과 드라이버 설치
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser  # 크롬 설치
+          wget -N https://chromedriver.storage.googleapis.com/$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip  # 압축 해제
+          chmod +x chromedriver  # 실행 권한 추가
+          sudo mv -f chromedriver /usr/local/bin/chromedriver  # 드라이버를 시스템 경로에 추가
+
+      - name: Run Selenium Test  # 5️⃣ Selenium 테스트 실행
+        run: |
+          python main.py  # main.py 파일 실행
